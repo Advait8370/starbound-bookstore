@@ -1,0 +1,204 @@
+body {
+
+  margin: 0;
+
+  height: 100vh;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  overflow: hidden;
+
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+
+  background:
+    radial-gradient(
+      circle at top,
+      #102040,
+      #050816
+    );
+
+  color: white;
+}
+
+/* Glow */
+
+body::before {
+
+  content: "";
+
+  position: fixed;
+
+  width: 500px;
+
+  height: 500px;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(97,218,251,0.2),
+      transparent 70%
+    );
+
+  top: -150px;
+
+  right: -150px;
+
+  filter: blur(50px);
+}
+
+/* Card */
+
+#update-card {
+
+  width: 450px;
+
+  max-width: 90%;
+
+  padding: 35px;
+
+  border-radius: 32px;
+
+  background:
+    rgba(255,255,255,0.08);
+
+  backdrop-filter: blur(30px);
+
+  border:
+    1px solid rgba(255,255,255,0.08);
+
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.45);
+
+  animation:
+    fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+
+  from {
+
+    opacity: 0;
+
+    transform:
+      translateY(20px);
+  }
+
+  to {
+
+    opacity: 1;
+
+    transform:
+      translateY(0);
+  }
+}
+
+h1 {
+
+  margin: 0 0 12px;
+
+  font-size: 32px;
+
+  background:
+    linear-gradient(
+      90deg,
+      white,
+      #61dafb
+    );
+
+  background-clip: text;
+  -webkit-background-clip: text;
+
+  -webkit-text-fill-color: transparent;
+}
+
+#status {
+
+  margin-bottom: 25px;
+
+  color:
+    rgba(255,255,255,0.8);
+}
+
+/* Progress */
+
+#progress-bar {
+
+  width: 100%;
+
+  height: 14px;
+
+  border-radius: 20px;
+
+  overflow: hidden;
+
+  background:
+    rgba(255,255,255,0.08);
+
+  margin-bottom: 12px;
+}
+
+#progress-fill {
+
+  width: 0%;
+
+  height: 100%;
+
+  border-radius: 20px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #61dafb,
+      #7f5cff
+    );
+
+  transition: 0.3s;
+}
+
+#progress-text {
+
+  font-weight: 700;
+
+  margin-bottom: 28px;
+}
+
+/* Changelog */
+
+#changelog {
+
+  background:
+    rgba(255,255,255,0.05);
+
+  border-radius: 22px;
+
+  padding: 20px;
+}
+
+#changelog h2 {
+
+  margin-top: 0;
+
+  font-size: 20px;
+}
+
+#changes-list {
+
+  padding-left: 20px;
+
+  color:
+    rgba(255,255,255,0.85);
+}
+
+#changes-list li {
+
+  margin-bottom: 10px;
+}
