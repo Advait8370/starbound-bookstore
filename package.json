@@ -1,5 +1,5 @@
 {
-  "name": "starbound-reader",
+  "name": "starbound-bookstore",
   "version": "1.0.0",
   "description": "Starbound Stories Bookstore and Reader",
   "main": "main.js",
@@ -10,8 +10,8 @@
     "build": "electron-builder"
   },
   "build": {
-    "appId": "com.starbound.reader",
-    "productName": "Starbound Reader",
+    "appId": "com.starbound.bookstore",
+    "productName": "Starbound Bookstore",
     "copyright": "Copyright © 2026",
     "directories": {
       "output": "dist"
@@ -39,7 +39,7 @@
       "allowElevation": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Starbound Reader",
+      "shortcutName": "Starbound Bookstore",
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico",
       "installerHeaderIcon": "build/icon.ico"

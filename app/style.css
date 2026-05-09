@@ -528,3 +528,243 @@ h1 {
     font-size: 17px;
   }
 }
+
+/* Header Actions */
+
+.header-actions {
+
+  position: absolute;
+
+  right: 0;
+
+  display: flex;
+
+  gap: 10px;
+}
+
+/* Icon Buttons */
+
+#update-btn,
+#settings-btn,
+#favorites-btn {
+
+  width: 52px;
+
+  height: 52px;
+
+  border: none;
+
+  border-radius: 18px;
+
+  background:
+    rgba(255,255,255,0.10);
+
+  color: white;
+
+  font-size: 22px;
+
+  cursor: pointer;
+
+  transition: 0.3s;
+
+  backdrop-filter: blur(20px);
+
+  box-shadow:
+    0 8px 24px rgba(0,0,0,0.25);
+}
+
+#update-btn:hover,
+#settings-btn:hover,
+#favorites-btn:hover {
+
+  transform:
+    scale(1.08);
+
+  background:
+    rgba(255,255,255,0.18);
+}
+
+/* Favorite Active */
+
+#favorites-btn.active {
+
+  background:
+    rgba(255,80,120,0.25);
+}
+
+/* Card Actions */
+
+.card-actions {
+
+  display: flex;
+
+  gap: 12px;
+
+  align-items: center;
+}
+
+.fav-btn {
+
+  width: 52px;
+
+  border: none;
+
+  border-radius: 18px;
+
+  background:
+    rgba(255,255,255,0.12);
+
+  color: #ff5b8a;
+
+  font-size: 22px;
+
+  cursor: pointer;
+
+  transition: 0.25s;
+}
+
+.fav-btn:hover {
+
+  transform:
+    scale(1.08);
+}
+
+/* Settings Modal */
+
+#settings-modal {
+
+  position: fixed;
+
+  inset: 0;
+
+  display: none;
+
+  justify-content: center;
+
+  align-items: center;
+
+  background:
+    rgba(0,0,0,0.45);
+
+  z-index: 99999;
+}
+
+#settings-content {
+
+  width: 420px;
+
+  max-width: 90%;
+
+  padding: 30px;
+
+  border-radius: 30px;
+
+  background:
+    rgba(20,20,30,0.92);
+
+  backdrop-filter: blur(30px);
+
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.45);
+}
+
+#settings-content h2 {
+
+  margin-bottom: 20px;
+}
+
+.setting-item {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 20px;
+}
+
+#theme-toggle,
+#close-settings {
+
+  padding: 12px 18px;
+
+  border: none;
+
+  border-radius: 16px;
+
+  background:
+    rgba(255,255,255,0.12);
+
+  color: white;
+
+  cursor: pointer;
+}
+
+/* Light Mode */
+
+body.light-mode {
+
+  background:
+    linear-gradient(
+      180deg,
+      #edf3ff,
+      #dce7ff
+    );
+
+  color: #111;
+}
+
+body.light-mode header {
+
+  background:
+    rgba(255,255,255,0.7);
+}
+
+body.light-mode .book-card {
+
+  background:
+    rgba(255,255,255,0.8);
+
+  color: #111;
+}
+
+body.light-mode .book-info p {
+
+  color: #444;
+}
+
+body.light-mode #search {
+
+  background:
+    rgba(255,255,255,0.85);
+
+  color: #111;
+}
+
+body.light-mode #settings-content {
+
+  background:
+    rgba(255,255,255,0.95);
+
+  color: #111;
+}
+
+body.light-mode #theme-toggle,
+body.light-mode #close-settings {
+
+  color: #111;
+}
+
+/* Error */
+
+.error {
+
+  color: red;
+
+  text-align: center;
+
+  padding: 40px;
+
+  font-size: 22px;
+}
