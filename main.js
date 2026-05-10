@@ -4,15 +4,37 @@ const {
   ipcMain
 } = require("electron");
 
-const path = require("path");
+const path =
+  require("path");
+
+const fs =
+  require("fs-extra");
+
+const axios =
+  require("axios");
+
+const Store =
+  require("electron-store").default;
+
+const store =
+  new Store();
 
 const {
   autoUpdater
-} = require("electron-updater");
+} = require(
+  "electron-updater"
+);
 
 let mainWindow;
 
 let updateWindow;
+
+const booksDir = path.join(
+  app.getPath("userData"),
+  "library"
+);
+
+fs.ensureDirSync(booksDir);
 
 /* Main Window */
 
@@ -35,20 +57,26 @@ function createMainWindow() {
 
       webPreferences: {
 
-        preload:
-          path.join(
-            __dirname,
-            "preload.js"
-          ),
+  preload:
+    path.join(
+      __dirname,
+      "preload.js"
+    ),
 
-        contextIsolation: true
-      }
+  contextIsolation: true,
+
+  webSecurity: false,
+
+  allowRunningInsecureContent: true
+}
 
     });
 
   mainWindow.loadFile(
     "app/index.html"
   );
+
+  mainWindow.webContents.openDevTools();
 }
 
 /* Update Window */
@@ -61,6 +89,12 @@ function createUpdateWindow() {
       width: 520,
 
       height: 650,
+
+      icon: path.join(
+  __dirname,
+  "build",
+  "icon.ico"
+),
 
       resizable: false,
 
@@ -75,14 +109,18 @@ function createUpdateWindow() {
 
       webPreferences: {
 
-        preload:
-          path.join(
-            __dirname,
-            "preload.js"
-          ),
+  preload:
+    path.join(
+      __dirname,
+      "preload.js"
+    ),
 
-        contextIsolation: true
-      }
+  contextIsolation: true,
+
+  nodeIntegration: false,
+
+  webSecurity: false
+}
 
     });
 
@@ -106,7 +144,7 @@ function sendUpdateMessage(
   }
 }
 
-/* App Ready */
+/* Ready */
 
 app.whenReady().then(() => {
 
@@ -118,25 +156,318 @@ app.whenReady().then(() => {
 
 ipcMain.on(
   "manual-update-check",
-  () => {
+  async () => {
 
-    if (!updateWindow) {
+    try {
 
-      createUpdateWindow();
+      /* Create Update Window */
+
+      if (
+
+        !updateWindow ||
+
+        updateWindow.isDestroyed()
+
+      ) {
+
+        createUpdateWindow();
+      }
+
+      /* Show Status */
+
+      sendUpdateMessage({
+
+        type: "status",
+
+        text:
+          "Checking for updates..."
+
+      });
+
+      /* Force GitHub Check */
+
+      autoUpdater.autoDownload =
+        true;
+
+      autoUpdater.autoInstallOnAppQuit =
+        true;
+
+      /* Check */
+
+      await autoUpdater
+        .checkForUpdates();
+
+    } catch (err) {
+
+      console.error(
+        "Update Check Error:",
+        err
+      );
+
+      sendUpdateMessage({
+
+        type: "status",
+
+        text:
+          "Failed to check for updates."
+
+      });
     }
+
+  }
+);
+
+/* Update Available */
+
+autoUpdater.on(
+  "update-available",
+  info => {
+
+    console.log(
+      "Update available:",
+      info.version
+    );
 
     sendUpdateMessage({
 
       type: "status",
 
       text:
-        "Checking for updates..."
+        `Downloading v${info.version}...`
 
     });
 
-    autoUpdater
-      .checkForUpdates();
+  }
+);
 
+/* No Update */
+
+autoUpdater.on(
+  "update-not-available",
+  () => {
+
+    sendUpdateMessage({
+
+      type: "status",
+
+      text:
+        "You're using the latest version."
+
+    });
+
+  }
+);
+
+/* Download Progress */
+
+autoUpdater.on(
+  "download-progress",
+  progress => {
+
+    sendUpdateMessage({
+
+      type: "progress",
+
+      percent:
+        Math.round(
+          progress.percent
+        )
+
+    });
+
+  }
+);
+
+/* Downloaded */
+
+autoUpdater.on(
+  "update-downloaded",
+  () => {
+
+    sendUpdateMessage({
+
+      type: "status",
+
+      text:
+        "Update downloaded. Restarting..."
+
+    });
+
+    setTimeout(() => {
+
+      autoUpdater
+        .quitAndInstall();
+
+    }, 3000);
+
+  }
+);
+
+/* Error */
+
+autoUpdater.on(
+  "error",
+  err => {
+
+    console.error(err);
+
+    sendUpdateMessage({
+
+      type: "status",
+
+      text:
+        "Update failed."
+
+    });
+
+  }
+);
+
+/* Download Book */
+
+ipcMain.handle(
+  "download-book",
+  async (_, book) => {
+
+    try {
+
+      const filePath = path.join(
+
+        booksDir,
+
+        `${book.id}.pdf`
+
+      );
+
+      const response =
+        await axios({
+
+          method: "GET",
+
+          url: book.pdf,
+
+          responseType: "stream"
+
+        });
+
+      const writer =
+        fs.createWriteStream(
+          filePath
+        );
+
+      response.data.pipe(writer);
+
+      await new Promise(
+        (resolve, reject) => {
+
+          writer.on(
+            "finish",
+            resolve
+          );
+
+          writer.on(
+            "error",
+            reject
+          );
+
+        }
+      );
+
+      let library =
+        store.get("library") || [];
+
+      const exists =
+        library.find(
+          b => b.id === book.id
+        );
+
+      if (!exists) {
+
+        library.push({
+
+          id: book.id,
+
+          title: book.title,
+
+          universe: book.universe,
+
+          cover: book.cover,
+
+          localPath: filePath
+
+        });
+
+        store.set(
+          "library",
+          library
+        );
+      }
+
+      return {
+        success: true
+      };
+
+    } catch (err) {
+
+      console.error(err);
+
+      return {
+        success: false
+      };
+    }
+  }
+);
+
+/* Get Library */
+
+ipcMain.handle(
+  "get-library",
+  async () => {
+
+    return (
+      store.get("library") || []
+    );
+  }
+);
+
+/* Remove Book */
+
+ipcMain.handle(
+  "remove-book",
+  async (_, id) => {
+
+    let library =
+      store.get("library") || [];
+
+    const book =
+      library.find(
+        b => b.id === id
+      );
+
+    if (book) {
+
+      try {
+
+        fs.removeSync(
+          book.localPath
+        );
+
+      } catch {}
+    }
+
+    library =
+      library.filter(
+        b => b.id !== id
+      );
+
+    store.set(
+      "library",
+      library
+    );
+
+    return {
+      success: true
+    };
   }
 );
 
@@ -155,30 +486,10 @@ autoUpdater.on(
 
     });
 
-    sendUpdateMessage({
-
-      type: "changelog",
-
-      items: [
-
-        "New Apple-style reader UI",
-
-        "Improved fullscreen support",
-
-        "Performance improvements",
-
-        "Bug fixes",
-
-        "Better PDF rendering"
-
-      ]
-
-    });
-
   }
 );
 
-/* Download Progress */
+/* Progress */
 
 autoUpdater.on(
   "download-progress",
@@ -211,18 +522,10 @@ autoUpdater.on(
 
     });
 
-    sendUpdateMessage({
-
-      type: "progress",
-
-      percent: 100
-
-    });
-
   }
 );
 
-/* Update Downloaded */
+/* Downloaded */
 
 autoUpdater.on(
   "update-downloaded",
@@ -233,7 +536,7 @@ autoUpdater.on(
       type: "status",
 
       text:
-        "Update downloaded. Restarting..."
+        "Restarting to install update..."
 
     });
 
@@ -253,10 +556,7 @@ autoUpdater.on(
   "error",
   err => {
 
-    console.log(
-      "Update Error:",
-      err
-    );
+    console.log(err);
 
     sendUpdateMessage({
 

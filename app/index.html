@@ -27,6 +27,13 @@
       <div class="header-actions">
 
         <button
+          id="library-btn"
+          title="Library"
+        >
+          📚
+        </button>
+
+        <button
           id="favorites-btn"
           title="Favorites"
         >
@@ -38,13 +45,6 @@
           title="Settings"
         >
           ⚙
-        </button>
-
-        <button
-          id="update-btn"
-          title="Check for Updates"
-        >
-          ⭮
         </button>
 
       </div>
@@ -61,7 +61,27 @@
 
   <div id="bookGrid"></div>
 
-  <!-- SETTINGS MODAL -->
+  <!-- LIBRARY -->
+
+  <div id="library-modal">
+
+    <div id="library-content">
+
+      <h2>Offline Library</h2>
+
+      <div id="library-grid"></div>
+
+      <button id="close-library">
+
+        Close
+
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- SETTINGS -->
 
   <div id="settings-modal">
 
@@ -78,6 +98,83 @@
           Toggle Light/Dark
 
         </button>
+
+      </div>
+
+      <div class="setting-item">
+
+        <span>Application Updates</span>
+
+        <button id="settings-update-btn">
+
+          Check Updates
+
+        </button>
+
+      </div>
+
+      <div class="setting-item">
+
+        <span>Auto Fullscreen Reader</span>
+
+        <input
+          type="checkbox"
+          id="fullscreen-toggle"
+        >
+
+      </div>
+
+      <div class="setting-item">
+
+        <span>Smooth Animations</span>
+
+        <input
+          type="checkbox"
+          id="animation-toggle"
+          checked
+        >
+
+      </div>
+
+      <div class="setting-item">
+
+        <span>Default Reader Zoom</span>
+
+        <select id="zoom-setting">
+
+          <option value="0.8">
+            Small
+          </option>
+
+          <option value="1.2">
+            Medium
+          </option>
+
+          <option value="1.6">
+            Large
+          </option>
+
+        </select>
+
+      </div>
+
+      <div class="setting-item">
+
+        <span>Favorites</span>
+
+        <button id="clear-favorites">
+
+          Clear Favorites
+
+        </button>
+
+      </div>
+
+      <div id="about-app">
+
+        <h3>Starbound Reader</h3>
+
+        <p>Version 1.2.0</p>
 
       </div>
 
