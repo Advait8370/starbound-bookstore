@@ -410,7 +410,7 @@ ipcMain.handle(
 
           booksDir,
 
-          `${book.id}.pdf`
+          `${book.id}.epub`
 
         );
 

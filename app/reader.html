@@ -14,21 +14,31 @@
 
   <link rel="stylesheet" href="reader.css">
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- EPUB.js -->
+
+  <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
 
 </head>
 
 <body>
 
+  <!-- Reader Controls -->
+
   <div id="reader-controls">
+
+    <!-- Previous -->
 
     <button onclick="prevPage()">
       ←
     </button>
 
+    <!-- Zoom Out -->
+
     <button onclick="zoomOut()">
       −
     </button>
+
+    <!-- Page Info -->
 
     <div id="page-info">
 
@@ -44,17 +54,25 @@
 
     </div>
 
+    <!-- Zoom In -->
+
     <button onclick="zoomIn()">
       +
     </button>
+
+    <!-- Next -->
 
     <button onclick="nextPage()">
       →
     </button>
 
+    <!-- Fullscreen -->
+
     <button onclick="toggleFullscreen()">
       ⛶
     </button>
+
+    <!-- Home -->
 
     <button onclick="goHome()">
       ✕
@@ -62,7 +80,15 @@
 
   </div>
 
-  <div id="pdf-container"></div>
+  <!-- EPUB Container -->
+
+  <div id="pdf-container">
+
+    <div id="epub-viewer"></div>
+
+  </div>
+
+  <!-- Reader -->
 
   <script src="reader.js"></script>
 

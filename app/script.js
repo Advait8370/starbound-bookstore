@@ -439,7 +439,7 @@ window.onload = () => {
 
             localStorage.setItem(
               "currentBook",
-              book.pdf
+              book.epub
             );
           }
 

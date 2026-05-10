@@ -1,123 +1,146 @@
 const url =
-  localStorage.getItem("currentBook");
+  localStorage.getItem(
+    "currentBook"
+  );
+
+/* EPUB */
+
+const book =
+  ePub(url);
+
+/* Container */
 
 const container =
-  document.getElementById("pdf-container");
+  document.getElementById(
+    "pdf-container"
+  );
 
-let pdfDoc = null;
+/* Viewer */
 
-let currentPage = 1;
+const viewer =
+  document.createElement(
+    "div"
+  );
 
-let currentScale = 1.2;
+viewer.id = "epub-viewer";
 
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+container.appendChild(
+  viewer
+);
 
-async function loadPDF() {
+/* Rendition */
 
-  try {
+const rendition =
+  book.renderTo(
 
-    pdfDoc = await pdfjsLib
-      .getDocument(url)
-      .promise;
+    "epub-viewer",
 
-    renderPage(currentPage);
+    {
 
-    console.log("PDF Loaded");
+      width: "100%",
 
-  } catch (err) {
+      height: "100%",
 
-    console.error(err);
+      spread: "none"
 
-    container.innerHTML = `
+    }
 
-      <h2 style="
-        color:red;
-        margin-top:40px;
-      ">
-        Failed to load PDF.
-      </h2>
+  );
 
-    `;
-  }
+/* Display */
+
+rendition.display();
+
+/* State */
+
+let currentScale =
+  parseFloat(
+
+    localStorage.getItem(
+      "readerZoom"
+    ) || "1.2"
+
+  );
+
+/* Zoom */
+
+function applyZoom() {
+
+  viewer.style.transform =
+    `scale(${currentScale})`;
+
+  viewer.style.transformOrigin =
+    "top center";
 }
 
-async function renderPage(num) {
+applyZoom();
 
-  container.innerHTML = "";
+/* Page Info */
 
-  const page =
-    await pdfDoc.getPage(num);
+book.ready.then(() => {
 
-  const viewport =
-    page.getViewport({
-      scale: currentScale
-    });
+  document.getElementById(
+    "page-count"
+  ).textContent =
+    book.navigation.toc.length || 0;
 
-  const canvas =
-    document.createElement("canvas");
+});
 
-  const ctx =
-    canvas.getContext("2d");
+/* Navigation */
 
-  canvas.width =
-    viewport.width;
+let currentChapter = 1;
 
-  canvas.height =
-    viewport.height;
+function updatePageInfo() {
 
-  container.appendChild(canvas);
-
-  await page.render({
-
-    canvasContext: ctx,
-
-    viewport: viewport
-
-  }).promise;
-
-  document.getElementById("page-num")
-    .textContent = currentPage;
-
-  document.getElementById("page-count")
-    .textContent = pdfDoc.numPages;
-
-  window.scrollTo({
-
-    top: 0,
-
-    behavior: "smooth"
-
-  });
+  document.getElementById(
+    "page-num"
+  ).textContent =
+    currentChapter;
 }
 
-function nextPage() {
+/* NEXT */
 
-  if (
-    currentPage >= pdfDoc.numPages
-  ) return;
+async function nextPage() {
 
-  currentPage++;
+  await rendition.next();
 
-  renderPage(currentPage);
+  currentChapter++;
+
+  updatePageInfo();
 }
 
-function prevPage() {
+/* PREV */
 
-  if (currentPage <= 1)
+async function prevPage() {
+
+  if (currentChapter <= 1)
     return;
 
-  currentPage--;
+  await rendition.prev();
 
-  renderPage(currentPage);
+  currentChapter--;
+
+  updatePageInfo();
 }
+
+/* ZOOM IN */
 
 function zoomIn() {
 
   currentScale += 0.15;
 
-  renderPage(currentPage);
+  localStorage.setItem(
+
+    "readerZoom",
+
+    currentScale
+
+  );
+
+  applyZoom();
 }
+
+/* ZOOM OUT */
 
 function zoomOut() {
 
@@ -126,8 +149,18 @@ function zoomOut() {
 
   currentScale -= 0.15;
 
-  renderPage(currentPage);
+  localStorage.setItem(
+
+    "readerZoom",
+
+    currentScale
+
+  );
+
+  applyZoom();
 }
+
+/* FULLSCREEN */
 
 function toggleFullscreen() {
 
@@ -142,10 +175,72 @@ function toggleFullscreen() {
   }
 }
 
+/* HOME */
+
 function goHome() {
 
   window.location.href =
     "index.html";
 }
 
-loadPDF();
+/* AUTO FULLSCREEN */
+
+if (
+
+  localStorage.getItem(
+    "autoFullscreen"
+  ) === "true"
+
+) {
+
+  document.documentElement
+    .requestFullscreen()
+    .catch(() => {});
+}
+
+/* Keyboard */
+
+document.addEventListener(
+  "keydown",
+  e => {
+
+    if (
+      e.key === "ArrowRight"
+    ) {
+
+      nextPage();
+    }
+
+    if (
+      e.key === "ArrowLeft"
+    ) {
+
+      prevPage();
+    }
+
+  }
+);
+
+/* Update Info */
+
+updatePageInfo();
+
+/* Error */
+
+book.ready.catch(err => {
+
+  console.error(err);
+
+  container.innerHTML = `
+
+    <h2 style="
+      color:red;
+      margin-top:40px;
+    ">
+
+      Failed to load EPUB.
+
+    </h2>
+
+  `;
+});
