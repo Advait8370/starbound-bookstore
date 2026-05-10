@@ -16,27 +16,47 @@ const axios =
 const Store =
   require("electron-store").default;
 
-const store =
-  new Store();
-
 const {
   autoUpdater
 } = require(
   "electron-updater"
 );
 
+const log =
+  require("electron-log");
+
+const store =
+  new Store();
+
+/* Logger */
+
+autoUpdater.logger = log;
+
+autoUpdater.logger.transports.file.level =
+  "info";
+
+/* Windows */
+
 let mainWindow;
 
 let updateWindow;
 
-const booksDir = path.join(
-  app.getPath("userData"),
-  "library"
+/* Library Folder */
+
+const booksDir =
+  path.join(
+
+    app.getPath("userData"),
+
+    "library"
+
+  );
+
+fs.ensureDirSync(
+  booksDir
 );
 
-fs.ensureDirSync(booksDir);
-
-/* Main Window */
+/* MAIN WINDOW */
 
 function createMainWindow() {
 
@@ -47,28 +67,46 @@ function createMainWindow() {
 
       height: 900,
 
+      minWidth: 1000,
+
+      minHeight: 700,
+
       autoHideMenuBar: true,
 
       backgroundColor:
         "#050816",
 
       title:
-        "Starbound Reader",
+        "Starbound Bookstore",
+
+      icon: path.join(
+
+        __dirname,
+
+        "build",
+
+        "icon.ico"
+
+      ),
 
       webPreferences: {
 
-  preload:
-    path.join(
-      __dirname,
-      "preload.js"
-    ),
+        preload:
+          path.join(
 
-  contextIsolation: true,
+            __dirname,
 
-  webSecurity: false,
+            "preload.js"
 
-  allowRunningInsecureContent: true
-}
+          ),
+
+        contextIsolation: true,
+
+        nodeIntegration: false,
+
+        webSecurity: false
+
+      }
 
     });
 
@@ -76,10 +114,9 @@ function createMainWindow() {
     "app/index.html"
   );
 
-  mainWindow.webContents.openDevTools();
 }
 
-/* Update Window */
+/* UPDATE WINDOW */
 
 function createUpdateWindow() {
 
@@ -90,12 +127,6 @@ function createUpdateWindow() {
 
       height: 650,
 
-      icon: path.join(
-  __dirname,
-  "build",
-  "icon.ico"
-),
-
       resizable: false,
 
       frame: false,
@@ -104,47 +135,79 @@ function createUpdateWindow() {
 
       alwaysOnTop: true,
 
+      show: false,
+
       backgroundColor:
         "#00000000",
 
+      icon: path.join(
+
+        __dirname,
+
+        "build",
+
+        "icon.ico"
+
+      ),
+
       webPreferences: {
 
-  preload:
-    path.join(
-      __dirname,
-      "preload.js"
-    ),
+        preload:
+          path.join(
 
-  contextIsolation: true,
+            __dirname,
 
-  nodeIntegration: false,
+            "preload.js"
 
-  webSecurity: false
-}
+          ),
+
+        contextIsolation: true,
+
+        nodeIntegration: false
+
+      }
 
     });
 
   updateWindow.loadFile(
     "app/update.html"
   );
+
+  updateWindow.once(
+    "ready-to-show",
+    () => {
+
+      updateWindow.show();
+
+    }
+  );
 }
 
-/* Send Update Messages */
+/* SEND UPDATE MESSAGE */
 
 function sendUpdateMessage(
   data
 ) {
 
-  if (updateWindow) {
+  if (
+
+    updateWindow &&
+
+    !updateWindow.isDestroyed()
+
+  ) {
 
     updateWindow.webContents.send(
+
       "update-message",
+
       data
+
     );
   }
 }
 
-/* Ready */
+/* READY */
 
 app.whenReady().then(() => {
 
@@ -152,15 +215,13 @@ app.whenReady().then(() => {
 
 });
 
-/* Manual Update Check */
+/* UPDATE CHECK */
 
 ipcMain.on(
   "manual-update-check",
   async () => {
 
     try {
-
-      /* Create Update Window */
 
       if (
 
@@ -173,8 +234,6 @@ ipcMain.on(
         createUpdateWindow();
       }
 
-      /* Show Status */
-
       sendUpdateMessage({
 
         type: "status",
@@ -184,40 +243,50 @@ ipcMain.on(
 
       });
 
-      /* Force GitHub Check */
-
       autoUpdater.autoDownload =
         true;
 
       autoUpdater.autoInstallOnAppQuit =
         true;
 
-      /* Check */
-
       await autoUpdater
         .checkForUpdates();
 
     } catch (err) {
 
-      console.error(
-        "Update Check Error:",
-        err
-      );
+      console.error(err);
 
       sendUpdateMessage({
 
         type: "status",
 
         text:
-          "Failed to check for updates."
+          "Failed to check updates."
 
       });
+
     }
 
   }
 );
 
-/* Update Available */
+/* UPDATE EVENTS */
+
+autoUpdater.on(
+  "checking-for-update",
+  () => {
+
+    sendUpdateMessage({
+
+      type: "status",
+
+      text:
+        "Checking for updates..."
+
+    });
+
+  }
+);
 
 autoUpdater.on(
   "update-available",
@@ -240,8 +309,6 @@ autoUpdater.on(
   }
 );
 
-/* No Update */
-
 autoUpdater.on(
   "update-not-available",
   () => {
@@ -257,8 +324,6 @@ autoUpdater.on(
 
   }
 );
-
-/* Download Progress */
 
 autoUpdater.on(
   "download-progress",
@@ -277,8 +342,6 @@ autoUpdater.on(
 
   }
 );
-
-/* Downloaded */
 
 autoUpdater.on(
   "update-downloaded",
@@ -303,27 +366,38 @@ autoUpdater.on(
   }
 );
 
-/* Error */
-
 autoUpdater.on(
   "error",
   err => {
 
-    console.error(err);
+    console.error(
+      "AUTO UPDATE ERROR:",
+      err
+    );
 
     sendUpdateMessage({
 
       type: "status",
 
       text:
-        "Update failed."
+        err == null
+
+          ? "Update failed."
+
+          : (
+
+              err.stack ||
+
+              err.toString()
+
+            )
 
     });
 
   }
 );
 
-/* Download Book */
+/* DOWNLOAD BOOK */
 
 ipcMain.handle(
   "download-book",
@@ -331,13 +405,14 @@ ipcMain.handle(
 
     try {
 
-      const filePath = path.join(
+      const filePath =
+        path.join(
 
-        booksDir,
+          booksDir,
 
-        `${book.id}.pdf`
+          `${book.id}.pdf`
 
-      );
+        );
 
       const response =
         await axios({
@@ -355,7 +430,9 @@ ipcMain.handle(
           filePath
         );
 
-      response.data.pipe(writer);
+      response.data.pipe(
+        writer
+      );
 
       await new Promise(
         (resolve, reject) => {
@@ -374,7 +451,9 @@ ipcMain.handle(
       );
 
       let library =
-        store.get("library") || [];
+        store.get(
+          "library"
+        ) || [];
 
       const exists =
         library.find(
@@ -414,30 +493,39 @@ ipcMain.handle(
       return {
         success: false
       };
+
     }
+
   }
 );
 
-/* Get Library */
+/* GET LIBRARY */
 
 ipcMain.handle(
   "get-library",
   async () => {
 
     return (
-      store.get("library") || []
+
+      store.get(
+        "library"
+      ) || []
+
     );
+
   }
 );
 
-/* Remove Book */
+/* REMOVE BOOK */
 
 ipcMain.handle(
   "remove-book",
   async (_, id) => {
 
     let library =
-      store.get("library") || [];
+      store.get(
+        "library"
+      ) || [];
 
     const book =
       library.find(
@@ -468,120 +556,25 @@ ipcMain.handle(
     return {
       success: true
     };
-  }
-);
-
-/* Update Available */
-
-autoUpdater.on(
-  "update-available",
-  () => {
-
-    sendUpdateMessage({
-
-      type: "status",
-
-      text:
-        "Downloading update..."
-
-    });
 
   }
 );
 
-/* Progress */
-
-autoUpdater.on(
-  "download-progress",
-  progress => {
-
-    sendUpdateMessage({
-
-      type: "progress",
-
-      percent:
-        progress.percent
-
-    });
-
-  }
-);
-
-/* No Update */
-
-autoUpdater.on(
-  "update-not-available",
-  () => {
-
-    sendUpdateMessage({
-
-      type: "status",
-
-      text:
-        "You're already using the latest version."
-
-    });
-
-  }
-);
-
-/* Downloaded */
-
-autoUpdater.on(
-  "update-downloaded",
-  () => {
-
-    sendUpdateMessage({
-
-      type: "status",
-
-      text:
-        "Restarting to install update..."
-
-    });
-
-    setTimeout(() => {
-
-      autoUpdater
-        .quitAndInstall();
-
-    }, 3000);
-
-  }
-);
-
-/* Error */
-
-autoUpdater.on(
-  "error",
-  err => {
-
-    console.log(err);
-
-    sendUpdateMessage({
-
-      type: "status",
-
-      text:
-        "Update failed."
-
-    });
-
-  }
-);
-
-/* Close */
+/* CLOSE */
 
 app.on(
   "window-all-closed",
   () => {
 
     if (
+
       process.platform !==
       "darwin"
+
     ) {
 
       app.quit();
+
     }
 
   }
