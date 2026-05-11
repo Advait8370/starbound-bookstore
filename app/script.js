@@ -1,5 +1,7 @@
 window.onload = () => {
 
+  /* Elements */
+
   const grid =
     document.getElementById(
       "bookGrid"
@@ -35,26 +37,6 @@ window.onload = () => {
       "favorites-btn"
     );
 
-  const libraryBtn =
-    document.getElementById(
-      "library-btn"
-    );
-
-  const libraryModal =
-    document.getElementById(
-      "library-modal"
-    );
-
-  const closeLibrary =
-    document.getElementById(
-      "close-library"
-    );
-
-  const libraryGrid =
-    document.getElementById(
-      "library-grid"
-    );
-
   const settingsUpdateBtn =
     document.getElementById(
       "settings-update-btn"
@@ -65,26 +47,48 @@ window.onload = () => {
       "fullscreen-toggle"
     );
 
-  const animationToggle =
-    document.getElementById(
-      "animation-toggle"
-    );
-
   const zoomSetting =
     document.getElementById(
       "zoom-setting"
     );
 
-  const clearFavorites =
+  /* Tabs */
+
+  const homeTab =
     document.getElementById(
-      "clear-favorites"
+      "home-tab"
     );
+
+  const libraryTab =
+    document.getElementById(
+      "library-tab"
+    );
+
+  const homePage =
+    document.getElementById(
+      "home-page"
+    );
+
+  const libraryPage =
+    document.getElementById(
+      "library-page"
+    );
+
+  const libraryGrid =
+    document.getElementById(
+      "library-grid"
+    );
+
+  /* State */
 
   let allBooks = [];
 
-  let showingFavorites = false;
+  let showingFavorites =
+    false;
 
   const libraryBooks = [];
+
+  /* API */
 
   const API =
     "https://advait8370.github.io/Starbound-Stories-Bookstore/books.json";
@@ -100,6 +104,7 @@ window.onload = () => {
       ) || "[]"
 
     );
+
   }
 
   function saveFavorite(title) {
@@ -117,6 +122,7 @@ window.onload = () => {
         favs.filter(
           f => f !== title
         );
+
     }
 
     localStorage.setItem(
@@ -126,6 +132,7 @@ window.onload = () => {
       JSON.stringify(favs)
 
     );
+
   }
 
   /* LOAD LIBRARY */
@@ -139,6 +146,7 @@ window.onload = () => {
     libraryBooks.length = 0;
 
     libraryBooks.push(...books);
+
   }
 
   /* RENDER LIBRARY */
@@ -164,6 +172,7 @@ window.onload = () => {
       `;
 
       return;
+
     }
 
     books.forEach(book => {
@@ -182,13 +191,47 @@ window.onload = () => {
 
         <h3>${book.title}</h3>
 
-        <button class="remove-book-btn">
+        <div class="library-actions">
 
-          Remove
+          <button class="read-library-btn">
 
-        </button>
+            Read
+
+          </button>
+
+          <button class="remove-book-btn">
+
+            Remove
+
+          </button>
+
+        </div>
 
       `;
+
+      /* READ OFFLINE */
+
+      card.querySelector(
+        ".read-library-btn"
+      ).addEventListener(
+        "click",
+        () => {
+
+          localStorage.setItem(
+
+            "currentBook",
+
+            book.localPath
+
+          );
+
+          window.location.href =
+            "reader.html";
+
+        }
+      );
+
+      /* REMOVE */
 
       card.querySelector(
         ".remove-book-btn"
@@ -204,72 +247,57 @@ window.onload = () => {
           renderLibrary();
 
           displayBooks(allBooks);
+
         }
       );
 
       libraryGrid.appendChild(card);
+
     });
+
   }
 
   /* LOAD BOOKS */
 
   async function loadBooks() {
 
-  try {
+    try {
 
-    console.log(
-      "Fetching books..."
-    );
+      const response =
+        await fetch(
 
-    const response =
-      await fetch(
+          API,
 
-        "https://advait8370.github.io/Starbound-Stories-Bookstore/books.json",
+          {
+            cache: "no-cache"
+          }
 
-        {
-          method: "GET",
-          cache: "no-cache"
-        }
+        );
 
-      );
+      const data =
+        await response.json();
 
-    console.log(
-      "Response:",
-      response.status
-    );
+      allBooks = data;
 
-    const data =
-      await response.json();
+      displayBooks(data);
 
-    console.log(
-      "Books:",
-      data
-    );
+    } catch (err) {
 
-    allBooks = data;
+      console.error(err);
 
-    displayBooks(data);
+      grid.innerHTML = `
 
-  } catch (err) {
+        <div class="error">
 
-    console.error(
-      "BOOK LOAD ERROR:",
-      err
-    );
+          Failed to load bookstore.
 
-    grid.innerHTML = `
+        </div>
 
-      <div class="error">
+      `;
 
-        Failed to load bookstore.<br><br>
+    }
 
-        ${err}
-
-      </div>
-
-    `;
   }
-}
 
   /* DISPLAY */
 
@@ -381,6 +409,7 @@ window.onload = () => {
               : allBooks
 
           );
+
         }
       );
 
@@ -390,10 +419,8 @@ window.onload = () => {
         "click",
         async () => {
 
-          if (localBook) {
-
+          if (localBook)
             return;
-          }
 
           downloadBtn.innerText =
             "Downloading...";
@@ -409,11 +436,15 @@ window.onload = () => {
 
             await loadLibrary();
 
+            renderLibrary();
+
           } else {
 
             downloadBtn.innerText =
               "Failed";
+
           }
+
         }
       );
 
@@ -428,29 +459,44 @@ window.onload = () => {
               b => b.id === book.id
             );
 
+          /* Offline */
+
           if (localBook) {
 
             localStorage.setItem(
+
               "currentBook",
+
               localBook.localPath
+
             );
 
-          } else {
+          }
+
+          /* Online */
+
+          else {
 
             localStorage.setItem(
+
               "currentBook",
-              book.epub
+
+              book.pdf
+
             );
+
           }
 
           window.location.href =
             "reader.html";
+
         }
       );
 
       grid.appendChild(card);
 
     });
+
   }
 
   /* SEARCH */
@@ -477,7 +523,7 @@ window.onload = () => {
     }
   );
 
-  /* FAVORITES FILTER */
+  /* FAVORITES */
 
   favoritesBtn.addEventListener(
     "click",
@@ -509,30 +555,9 @@ window.onload = () => {
       } else {
 
         displayBooks(allBooks);
+
       }
 
-    }
-  );
-
-  /* LIBRARY */
-
-  libraryBtn.addEventListener(
-    "click",
-    async () => {
-
-      libraryModal.style.display =
-        "flex";
-
-      renderLibrary();
-    }
-  );
-
-  closeLibrary.addEventListener(
-    "click",
-    () => {
-
-      libraryModal.style.display =
-        "none";
     }
   );
 
@@ -544,6 +569,7 @@ window.onload = () => {
 
       settingsModal.style.display =
         "flex";
+
     }
   );
 
@@ -553,6 +579,7 @@ window.onload = () => {
 
       settingsModal.style.display =
         "none";
+
     }
   );
 
@@ -575,6 +602,7 @@ window.onload = () => {
         )
 
       );
+
     }
   );
 
@@ -589,6 +617,7 @@ window.onload = () => {
     document.body.classList.add(
       "light-mode"
     );
+
   }
 
   /* UPDATE */
@@ -614,7 +643,7 @@ window.onload = () => {
       }
     );
 
-  /* SETTINGS STORAGE */
+  /* SETTINGS */
 
   fullscreenToggle.checked =
 
@@ -622,19 +651,11 @@ window.onload = () => {
       "autoFullscreen"
     ) === "true";
 
-  animationToggle.checked =
-
-    localStorage.getItem(
-      "animations"
-    ) !== "false";
-
   zoomSetting.value =
 
     localStorage.getItem(
       "readerZoom"
     ) || "1.2";
-
-  /* FULLSCREEN */
 
   fullscreenToggle.addEventListener(
     "change",
@@ -647,47 +668,9 @@ window.onload = () => {
         fullscreenToggle.checked
 
       );
+
     }
   );
-
-  /* ANIMATIONS */
-
-  animationToggle.addEventListener(
-    "change",
-    () => {
-
-      localStorage.setItem(
-
-        "animations",
-
-        animationToggle.checked
-
-      );
-
-      document.body.classList.toggle(
-
-        "no-animations",
-
-        !animationToggle.checked
-
-      );
-    }
-  );
-
-  if (
-
-    localStorage.getItem(
-      "animations"
-    ) === "false"
-
-  ) {
-
-    document.body.classList.add(
-      "no-animations"
-    );
-  }
-
-  /* ZOOM */
 
   zoomSetting.addEventListener(
     "change",
@@ -700,24 +683,57 @@ window.onload = () => {
         zoomSetting.value
 
       );
+
     }
   );
 
-  /* CLEAR FAVORITES */
+  /* TABS */
 
-  clearFavorites.addEventListener(
+  homeTab.addEventListener(
     "click",
     () => {
 
-      localStorage.removeItem(
-        "favorites"
+      homeTab.classList.add(
+        "active"
       );
 
-      alert(
-        "Favorites cleared."
+      libraryTab.classList.remove(
+        "active"
       );
 
-      displayBooks(allBooks);
+      homePage.classList.add(
+        "active-page"
+      );
+
+      libraryPage.classList.remove(
+        "active-page"
+      );
+
+    }
+  );
+
+  libraryTab.addEventListener(
+    "click",
+    async () => {
+
+      libraryTab.classList.add(
+        "active"
+      );
+
+      homeTab.classList.remove(
+        "active"
+      );
+
+      libraryPage.classList.add(
+        "active-page"
+      );
+
+      homePage.classList.remove(
+        "active-page"
+      );
+
+      renderLibrary();
+
     }
   );
 
@@ -727,7 +743,7 @@ window.onload = () => {
 
     await loadLibrary();
 
-    loadBooks();
+    await loadBooks();
 
   })();
 

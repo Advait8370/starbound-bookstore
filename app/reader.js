@@ -1,59 +1,51 @@
-const url =
+/* Current Book */
+
+let url =
   localStorage.getItem(
     "currentBook"
   );
 
-/* EPUB */
+/* Local Windows Fix */
 
-const book =
-  ePub(url);
+if (
 
-/* Container */
+  url &&
+  !url.startsWith("http")
 
-const container =
-  document.getElementById(
-    "pdf-container"
-  );
+) {
 
-/* Viewer */
+  url = encodeURI(
 
-const viewer =
-  document.createElement(
-    "div"
-  );
+    "file:///" +
 
-viewer.id = "epub-viewer";
-
-container.appendChild(
-  viewer
-);
-
-/* Rendition */
-
-const rendition =
-  book.renderTo(
-
-    "epub-viewer",
-
-    {
-
-      width: "100%",
-
-      height: "100%",
-
-      spread: "none"
-
-    }
+    url.replace(
+      /\\/g,
+      "/"
+    )
 
   );
 
-/* Display */
+}
 
-rendition.display();
+/* Worker */
 
-/* State */
+pdfjsLib.GlobalWorkerOptions.workerSrc =
 
-let currentScale =
+  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+/* PDF */
+
+let pdfDoc = null;
+
+let pageNum = 1;
+
+let rendering = false;
+
+let pendingPage = null;
+
+/* Zoom */
+
+let scale =
   parseFloat(
 
     localStorage.getItem(
@@ -62,109 +54,180 @@ let currentScale =
 
   );
 
-/* Zoom */
+/* Canvas */
 
-function applyZoom() {
+const canvas =
+  document.getElementById(
+    "pdf-render"
+  );
 
-  viewer.style.transform =
-    `scale(${currentScale})`;
-
-  viewer.style.transformOrigin =
-    "top center";
-}
-
-applyZoom();
+const ctx =
+  canvas.getContext("2d");
 
 /* Page Info */
 
-book.ready.then(() => {
-
+const pageInfo =
   document.getElementById(
-    "page-count"
-  ).textContent =
-    book.navigation.toc.length || 0;
+    "page-info"
+  );
 
-});
+/* Render */
 
-/* Navigation */
+function renderPage(num) {
 
-let currentChapter = 1;
+  rendering = true;
 
-function updatePageInfo() {
+  pdfDoc.getPage(num)
+    .then(page => {
 
-  document.getElementById(
-    "page-num"
-  ).textContent =
-    currentChapter;
+      const viewport =
+        page.getViewport({
+          scale
+        });
+
+      canvas.height =
+        viewport.height;
+
+      canvas.width =
+        viewport.width;
+
+      const renderTask =
+        page.render({
+
+          canvasContext: ctx,
+
+          viewport
+
+        });
+
+      renderTask.promise.then(() => {
+
+        rendering = false;
+
+        if (
+
+          pendingPage !== null
+
+        ) {
+
+          renderPage(
+            pendingPage
+          );
+
+          pendingPage = null;
+        }
+
+      });
+
+      pageInfo.innerText =
+
+        `${pageNum} / ${pdfDoc.numPages}`;
+
+    });
+
 }
 
-/* NEXT */
+/* Queue */
 
-async function nextPage() {
+function queueRenderPage(num) {
 
-  await rendition.next();
+  if (rendering) {
 
-  currentChapter++;
+    pendingPage = num;
 
-  updatePageInfo();
+  } else {
+
+    renderPage(num);
+
+  }
+
 }
 
-/* PREV */
+/* Previous */
 
-async function prevPage() {
+function prevPage() {
 
-  if (currentChapter <= 1)
+  if (pageNum <= 1)
     return;
 
-  await rendition.prev();
+  pageNum--;
 
-  currentChapter--;
+  queueRenderPage(
+    pageNum
+  );
 
-  updatePageInfo();
 }
 
-/* ZOOM IN */
+/* Next */
+
+function nextPage() {
+
+  if (
+
+    pageNum >= pdfDoc.numPages
+
+  ) return;
+
+  pageNum++;
+
+  queueRenderPage(
+    pageNum
+  );
+
+}
+
+/* Zoom In */
 
 function zoomIn() {
 
-  currentScale += 0.15;
+  scale += 0.2;
 
   localStorage.setItem(
 
     "readerZoom",
 
-    currentScale
+    scale
 
   );
 
-  applyZoom();
+  queueRenderPage(
+    pageNum
+  );
+
 }
 
-/* ZOOM OUT */
+/* Zoom Out */
 
 function zoomOut() {
 
-  if (currentScale <= 0.5)
-    return;
+  scale -= 0.2;
 
-  currentScale -= 0.15;
+  if (scale < 0.5)
+    scale = 0.5;
 
   localStorage.setItem(
 
     "readerZoom",
 
-    currentScale
+    scale
 
   );
 
-  applyZoom();
+  queueRenderPage(
+    pageNum
+  );
+
 }
 
-/* FULLSCREEN */
+/* Fullscreen */
 
 function toggleFullscreen() {
 
-  if (!document.fullscreenElement) {
+  if (
+
+    !document.fullscreenElement
+
+  ) {
 
     document.documentElement
       .requestFullscreen();
@@ -172,31 +235,96 @@ function toggleFullscreen() {
   } else {
 
     document.exitFullscreen();
+
   }
+
 }
 
-/* HOME */
+/* Home */
 
 function goHome() {
 
   window.location.href =
     "index.html";
+
 }
 
-/* AUTO FULLSCREEN */
+/* Load PDF */
 
-if (
+pdfjsLib.getDocument({
 
-  localStorage.getItem(
-    "autoFullscreen"
-  ) === "true"
+  url:
+    decodeURIComponent(url)
 
-) {
+})
+.promise
+.then(pdf => {
 
-  document.documentElement
-    .requestFullscreen()
-    .catch(() => {});
-}
+  pdfDoc = pdf;
+
+  renderPage(pageNum);
+
+})
+.catch(err => {
+
+  console.error(err);
+
+  document.body.innerHTML = `
+
+    <div style="
+      color:white;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      height:100vh;
+      font-size:22px;
+      flex-direction:column;
+      gap:20px;
+    ">
+
+      Failed to load PDF.
+
+      <div style="
+        font-size:14px;
+        opacity:0.7;
+      ">
+
+        ${err}
+
+      </div>
+
+    </div>
+
+  `;
+
+});
+
+/* Controls */
+
+document.getElementById(
+  "prev-page"
+).onclick = prevPage;
+
+document.getElementById(
+  "next-page"
+).onclick = nextPage;
+
+document.getElementById(
+  "zoom-in"
+).onclick = zoomIn;
+
+document.getElementById(
+  "zoom-out"
+).onclick = zoomOut;
+
+document.getElementById(
+  "fullscreen-btn"
+).onclick =
+  toggleFullscreen;
+
+document.getElementById(
+  "home-btn"
+).onclick = goHome;
 
 /* Keyboard */
 
@@ -209,6 +337,7 @@ document.addEventListener(
     ) {
 
       nextPage();
+
     }
 
     if (
@@ -216,31 +345,24 @@ document.addEventListener(
     ) {
 
       prevPage();
+
     }
 
   }
 );
 
-/* Update Info */
+/* Auto Fullscreen */
 
-updatePageInfo();
+if (
 
-/* Error */
+  localStorage.getItem(
+    "autoFullscreen"
+  ) === "true"
 
-book.ready.catch(err => {
+) {
 
-  console.error(err);
+  document.documentElement
+    .requestFullscreen()
+    .catch(() => {});
 
-  container.innerHTML = `
-
-    <h2 style="
-      color:red;
-      margin-top:40px;
-    ">
-
-      Failed to load EPUB.
-
-    </h2>
-
-  `;
-});
+}

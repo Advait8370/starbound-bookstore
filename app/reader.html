@@ -5,90 +5,61 @@
 
   <meta charset="UTF-8">
 
-  <title>Starbound Reader</title>
-
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0"
   >
 
-  <link rel="stylesheet" href="reader.css">
+  <title>Starbound Reader</title>
 
-  <!-- EPUB.js -->
+  <link
+    rel="stylesheet"
+    href="reader.css"
+  >
 
-  <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
 </head>
 
 <body>
 
-  <!-- Reader Controls -->
+  <div id="pdf-container">
+
+    <canvas id="pdf-render"></canvas>
+
+  </div>
 
   <div id="reader-controls">
 
-    <!-- Previous -->
-
-    <button onclick="prevPage()">
+    <button id="prev-page">
       ←
     </button>
 
-    <!-- Zoom Out -->
+    <span id="page-info">
+      1 / 1
+    </span>
 
-    <button onclick="zoomOut()">
-      −
-    </button>
-
-    <!-- Page Info -->
-
-    <div id="page-info">
-
-      <span id="page-num">
-        1
-      </span>
-
-      /
-
-      <span id="page-count">
-        0
-      </span>
-
-    </div>
-
-    <!-- Zoom In -->
-
-    <button onclick="zoomIn()">
-      +
-    </button>
-
-    <!-- Next -->
-
-    <button onclick="nextPage()">
+    <button id="next-page">
       →
     </button>
 
-    <!-- Fullscreen -->
+    <button id="zoom-out">
+      −
+    </button>
 
-    <button onclick="toggleFullscreen()">
+    <button id="zoom-in">
+      +
+    </button>
+
+    <button id="fullscreen-btn">
       ⛶
     </button>
 
-    <!-- Home -->
-
-    <button onclick="goHome()">
+    <button id="home-btn">
       ✕
     </button>
 
   </div>
-
-  <!-- EPUB Container -->
-
-  <div id="pdf-container">
-
-    <div id="epub-viewer"></div>
-
-  </div>
-
-  <!-- Reader -->
 
   <script src="reader.js"></script>
 
