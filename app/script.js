@@ -151,45 +151,64 @@ window.onload = () => {
 
   /* RENDER LIBRARY */
 
-  async function renderLibrary() {
+async function renderLibrary() {
 
-    const books =
-      await window.electronAPI
-        .getLibrary();
+  const books =
+    await window.electronAPI
+      .getLibrary();
 
-    libraryGrid.innerHTML = "";
+  libraryGrid.innerHTML = "";
 
-    if (books.length === 0) {
+  document.getElementById(
+    "library-stats"
+  ).innerText =
 
-      libraryGrid.innerHTML = `
+    `${books.length} Books`;
 
-        <div class="error">
+  if (books.length === 0) {
 
-          No downloaded books.
+    libraryGrid.innerHTML = `
 
-        </div>
+      <div class="empty-library">
 
-      `;
+        <h2>
+          No Offline Books
+        </h2>
 
-      return;
+        <p>
+          Download books to read offline.
+        </p>
 
-    }
+      </div>
 
-    books.forEach(book => {
+    `;
 
-      const card =
-        document.createElement(
-          "div"
-        );
+    return;
+  }
 
-      card.className =
-        "library-card";
+  books.forEach(book => {
 
-      card.innerHTML = `
+    const card =
+      document.createElement(
+        "div"
+      );
 
-        <img src="${book.cover}">
+    card.className =
+      "library-card";
+
+    card.innerHTML = `
+
+      <img src="${book.cover}">
+
+      <div class="library-info">
 
         <h3>${book.title}</h3>
+
+        <div class="offline-badge">
+
+          ✓ Offline
+
+        </div>
 
         <div class="library-actions">
 
@@ -207,55 +226,57 @@ window.onload = () => {
 
         </div>
 
-      `;
+      </div>
 
-      /* READ OFFLINE */
+    `;
 
-      card.querySelector(
-        ".read-library-btn"
-      ).addEventListener(
-        "click",
-        () => {
+    /* Read */
 
-          localStorage.setItem(
+    card.querySelector(
+      ".read-library-btn"
+    ).addEventListener(
+      "click",
+      () => {
 
-            "currentBook",
+        localStorage.setItem(
 
-            book.localPath
+          "currentBook",
 
-          );
+          book.localPath
 
-          window.location.href =
-            "reader.html";
+        );
 
-        }
-      );
+        window.location.href =
+          "reader.html";
 
-      /* REMOVE */
+      }
+    );
 
-      card.querySelector(
-        ".remove-book-btn"
-      ).addEventListener(
-        "click",
-        async () => {
+    /* Remove */
 
-          await window.electronAPI
-            .removeBook(book.id);
+    card.querySelector(
+      ".remove-book-btn"
+    ).addEventListener(
+      "click",
+      async () => {
 
-          await loadLibrary();
+        await window.electronAPI
+          .removeBook(book.id);
 
-          renderLibrary();
+        await loadLibrary();
 
-          displayBooks(allBooks);
+        renderLibrary();
 
-        }
-      );
+        displayBooks(allBooks);
 
-      libraryGrid.appendChild(card);
+      }
+    );
 
-    });
+    libraryGrid.appendChild(card);
 
-  }
+  });
+
+}
 
   /* LOAD BOOKS */
 
