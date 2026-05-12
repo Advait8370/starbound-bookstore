@@ -5,23 +5,104 @@
 
   <meta charset="UTF-8">
 
-  <title>Updating</title>
+  <title>Starbound Updater</title>
 
-  <link rel="stylesheet" href="update.css">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <link
+    rel="stylesheet"
+    href="update.css"
+  >
 
 </head>
 
 <body>
 
+  <!-- Background Orbs -->
+
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+
+  <!-- Card -->
+
   <div id="update-card">
+
+    <!-- Logo -->
+
+    <div id="logo">
+
+      ✦
+
+    </div>
+
+    <!-- Title -->
 
     <h1>
       Starbound Reader
     </h1>
 
-    <p id="status">
-      Checking for updates...
+    <p id="subtitle">
+
+      Updating your universe...
+
     </p>
+
+    <!-- Status -->
+
+    <div id="status-box">
+
+      <div id="status-icon">
+
+        ⟳
+
+      </div>
+
+      <div id="status">
+
+        Checking for updates...
+
+      </div>
+
+    </div>
+
+    <!-- Progress Ring -->
+
+    <div id="progress-wrapper">
+
+      <svg id="progress-ring">
+
+        <circle
+          id="ring-bg"
+          cx="90"
+          cy="90"
+          r="70"
+        />
+
+        <circle
+          id="ring-progress"
+          cx="90"
+          cy="90"
+          r="70"
+        />
+
+      </svg>
+
+      <div id="progress-center">
+
+        <span id="progress-text">
+
+          0%
+
+        </span>
+
+      </div>
+
+    </div>
+
+    <!-- Bar -->
 
     <div id="progress-bar">
 
@@ -29,17 +110,29 @@
 
     </div>
 
-    <div id="progress-text">
-      0%
-    </div>
+    <!-- Changelog -->
 
     <div id="changelog">
 
-      <h2>What's New</h2>
+      <div class="changelog-header">
+
+        <span>
+          What's New
+        </span>
+
+        <span class="version-badge">
+
+          v1.3.0
+
+        </span>
+
+      </div>
 
       <ul id="changes-list">
 
-        <li>Preparing updates...</li>
+        <li>
+          Initializing updater...
+        </li>
 
       </ul>
 

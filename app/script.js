@@ -1,3 +1,56 @@
+/* LOGIN CHECK */
+
+if (
+
+  !localStorage.getItem(
+    "loggedIn"
+  ) &&
+
+  !localStorage.getItem(
+    "guestMode"
+  )
+
+) {
+
+  window.location.href =
+    "login.html";
+
+}
+
+/* ANALYTICS */
+
+function track(eventName) {
+
+  let analytics = JSON.parse(
+
+    localStorage.getItem(
+      "analytics"
+    ) || "[]"
+
+  );
+
+  analytics.push({
+
+    event: eventName,
+
+    time:
+      new Date()
+      .toISOString()
+
+  });
+
+  localStorage.setItem(
+
+    "analytics",
+
+    JSON.stringify(
+      analytics
+    )
+
+  );
+
+}
+
 window.onload = () => {
 
   /* Elements */
@@ -50,6 +103,16 @@ window.onload = () => {
   const zoomSetting =
     document.getElementById(
       "zoom-setting"
+    );
+
+  const analyticsText =
+    document.getElementById(
+      "analytics-text"
+    );
+
+  const logoutBtn =
+    document.getElementById(
+      "logout-btn"
     );
 
   /* Tabs */
@@ -135,6 +198,43 @@ window.onload = () => {
 
   }
 
+/* ANALYTICS */
+
+function loadAnalytics() {
+
+  if (!analyticsText)
+    return;
+
+  const analytics = JSON.parse(
+
+    localStorage.getItem(
+      "analytics"
+    ) || "[]"
+
+  );
+
+  const reads =
+    analytics.filter(
+      a =>
+        a.event.startsWith(
+          "Read"
+        )
+    ).length;
+
+  const downloads =
+    analytics.filter(
+      a =>
+        a.event.startsWith(
+          "Downloaded"
+        )
+    ).length;
+
+  analyticsText.innerText =
+
+    `${reads} reads • ${downloads} downloads`;
+
+}
+
   /* LOAD LIBRARY */
 
   async function loadLibrary() {
@@ -149,134 +249,138 @@ window.onload = () => {
 
   }
 
-  /* RENDER LIBRARY */
+  /* LIBRARY */
 
-async function renderLibrary() {
+  async function renderLibrary() {
 
-  const books =
-    await window.electronAPI
-      .getLibrary();
+    const books =
+      await window.electronAPI
+        .getLibrary();
 
-  libraryGrid.innerHTML = "";
+    libraryGrid.innerHTML = "";
 
-  document.getElementById(
-    "library-stats"
-  ).innerText =
+    document.getElementById(
+      "library-stats"
+    ).innerText =
 
-    `${books.length} Books`;
+      `${books.length} Books`;
 
-  if (books.length === 0) {
+    if (books.length === 0) {
 
-    libraryGrid.innerHTML = `
+      libraryGrid.innerHTML = `
 
-      <div class="empty-library">
+        <div class="empty-library">
 
-        <h2>
-          No Offline Books
-        </h2>
+          <h2>
+            No Offline Books
+          </h2>
 
-        <p>
-          Download books to read offline.
-        </p>
-
-      </div>
-
-    `;
-
-    return;
-  }
-
-  books.forEach(book => {
-
-    const card =
-      document.createElement(
-        "div"
-      );
-
-    card.className =
-      "library-card";
-
-    card.innerHTML = `
-
-      <img src="${book.cover}">
-
-      <div class="library-info">
-
-        <h3>${book.title}</h3>
-
-        <div class="offline-badge">
-
-          ✓ Offline
+          <p>
+            Download books to read offline.
+          </p>
 
         </div>
 
-        <div class="library-actions">
+      `;
 
-          <button class="read-library-btn">
+      return;
+    }
 
-            Read
+    books.forEach(book => {
 
-          </button>
-
-          <button class="remove-book-btn">
-
-            Remove
-
-          </button>
-
-        </div>
-
-      </div>
-
-    `;
-
-    /* Read */
-
-    card.querySelector(
-      ".read-library-btn"
-    ).addEventListener(
-      "click",
-      () => {
-
-        localStorage.setItem(
-
-          "currentBook",
-
-          book.localPath
-
+      const card =
+        document.createElement(
+          "div"
         );
 
-        window.location.href =
-          "reader.html";
+      card.className =
+        "library-card";
 
-      }
-    );
+      card.innerHTML = `
 
-    /* Remove */
+        <img src="${book.cover}">
 
-    card.querySelector(
-      ".remove-book-btn"
-    ).addEventListener(
-      "click",
-      async () => {
+        <div class="library-info">
 
-        await window.electronAPI
-          .removeBook(book.id);
+          <h3>${book.title}</h3>
 
-        await loadLibrary();
+          <div class="offline-badge">
 
-        renderLibrary();
+            ✓ Offline
 
-        displayBooks(allBooks);
+          </div>
 
-      }
-    );
+          <div class="library-actions">
 
-    libraryGrid.appendChild(card);
+            <button class="read-library-btn">
 
-  });
+              Read
 
-}
+            </button>
+
+            <button class="remove-book-btn">
+
+              Remove
+
+            </button>
+
+          </div>
+
+        </div>
+
+      `;
+
+      /* Read */
+
+      card.querySelector(
+        ".read-library-btn"
+      ).addEventListener(
+        "click",
+        () => {
+
+          track(
+            `Read: ${book.title}`
+          );
+
+          localStorage.setItem(
+
+            "currentBook",
+
+            book.localPath
+
+          );
+
+          window.location.href =
+            "reader.html";
+
+        }
+      );
+
+      /* Remove */
+
+      card.querySelector(
+        ".remove-book-btn"
+      ).addEventListener(
+        "click",
+        async () => {
+
+          await window.electronAPI
+            .removeBook(book.id);
+
+          await loadLibrary();
+
+          renderLibrary();
+
+          displayBooks(allBooks);
+
+        }
+      );
+
+      libraryGrid.appendChild(card);
+
+    });
+
+  }
 
   /* LOAD BOOKS */
 
@@ -286,13 +390,11 @@ async function renderLibrary() {
 
       const response =
         await fetch(
-
           API,
-
           {
-            cache: "no-cache"
+            cache:
+              "no-cache"
           }
-
         );
 
       const data =
@@ -402,7 +504,7 @@ async function renderLibrary() {
           ".read-btn"
         );
 
-      /* FAVORITE */
+      /* Favorite */
 
       favBtn.addEventListener(
         "click",
@@ -417,14 +519,11 @@ async function renderLibrary() {
             showingFavorites
 
               ? allBooks.filter(
-
                   b =>
-
                     getFavorites()
                     .includes(
                       b.title
                     )
-
                 )
 
               : allBooks
@@ -434,7 +533,7 @@ async function renderLibrary() {
         }
       );
 
-      /* DOWNLOAD */
+      /* Download */
 
       downloadBtn.addEventListener(
         "click",
@@ -451,6 +550,10 @@ async function renderLibrary() {
               .downloadBook(book);
 
           if (result.success) {
+
+            track(
+              `Downloaded: ${book.title}`
+            );
 
             downloadBtn.innerText =
               "Downloaded";
@@ -469,18 +572,20 @@ async function renderLibrary() {
         }
       );
 
-      /* READ */
+      /* Read */
 
       readBtn.addEventListener(
         "click",
         () => {
 
+          track(
+            `Read: ${book.title}`
+          );
+
           const localBook =
             libraryBooks.find(
               b => b.id === book.id
             );
-
-          /* Offline */
 
           if (localBook) {
 
@@ -492,11 +597,7 @@ async function renderLibrary() {
 
             );
 
-          }
-
-          /* Online */
-
-          else {
+          } else {
 
             localStorage.setItem(
 
@@ -520,7 +621,7 @@ async function renderLibrary() {
 
   }
 
-  /* SEARCH */
+  /* Search */
 
   search.addEventListener(
     "input",
@@ -528,15 +629,14 @@ async function renderLibrary() {
 
       const value =
         search.value
-          .toLowerCase();
+        .toLowerCase();
 
       const filtered =
-        allBooks.filter(book =>
-
-          book.title
+        allBooks.filter(
+          book =>
+            book.title
             .toLowerCase()
             .includes(value)
-
         );
 
       displayBooks(filtered);
@@ -544,7 +644,7 @@ async function renderLibrary() {
     }
   );
 
-  /* FAVORITES */
+  /* Favorites */
 
   favoritesBtn.addEventListener(
     "click",
@@ -582,19 +682,25 @@ async function renderLibrary() {
     }
   );
 
-  /* SETTINGS */
+  /* Settings */
 
-  settingsBtn.addEventListener(
+  if (settingsBtn)
+
+settingsBtn.addEventListener(
     "click",
     () => {
 
       settingsModal.style.display =
         "flex";
 
+      loadAnalytics();
+
     }
   );
 
-  closeSettings.addEventListener(
+  if (closeSettings)
+
+closeSettings.addEventListener(
     "click",
     () => {
 
@@ -604,9 +710,11 @@ async function renderLibrary() {
     }
   );
 
-  /* THEME */
+  /* Theme */
 
-  themeToggle.addEventListener(
+  if (themeToggle)
+
+themeToggle.addEventListener(
     "click",
     () => {
 
@@ -641,7 +749,7 @@ async function renderLibrary() {
 
   }
 
-  /* UPDATE */
+  /* Updates */
 
   settingsUpdateBtn
     .addEventListener(
@@ -664,7 +772,7 @@ async function renderLibrary() {
       }
     );
 
-  /* SETTINGS */
+  /* Reader Settings */
 
   fullscreenToggle.checked =
 
@@ -708,7 +816,35 @@ async function renderLibrary() {
     }
   );
 
-  /* TABS */
+  /* Logout */
+
+  if (logoutBtn) {
+
+    logoutBtn.addEventListener(
+      "click",
+      () => {
+
+        localStorage.removeItem(
+          "loggedIn"
+        );
+
+        localStorage.removeItem(
+          "guestMode"
+        );
+
+        localStorage.removeItem(
+          "username"
+        );
+
+        window.location.href =
+          "login.html";
+
+      }
+    );
+
+  }
+
+  /* Tabs */
 
   homeTab.addEventListener(
     "click",
@@ -758,13 +894,17 @@ async function renderLibrary() {
     }
   );
 
-  /* START */
+  /* Start */
+
+  track("App Opened");
 
   (async () => {
 
     await loadLibrary();
 
     await loadBooks();
+
+    loadAnalytics();
 
   })();
 

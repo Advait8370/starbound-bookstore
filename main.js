@@ -13,6 +13,9 @@ const fs =
 const axios =
   require("axios");
 
+const express =
+  require("express");
+
 const Store =
   require("electron-store").default;
 
@@ -25,28 +28,57 @@ const {
 const log =
   require("electron-log");
 
+/* EXPRESS SERVER */
+
+const server =
+  express();
+
+server.use(
+  express.static(
+    path.join(
+      __dirname,
+      "app"
+    )
+  )
+);
+
+server.listen(
+  3000,
+  () => {
+
+    console.log(
+      "Local server running on port 3000"
+    );
+
+  }
+);
+
+/* STORE */
+
 const store =
   new Store();
 
-/* Logger */
+/* LOGGER */
 
 autoUpdater.logger = log;
 
 autoUpdater.logger.transports.file.level =
   "info";
 
-/* Windows */
+/* WINDOWS */
 
 let mainWindow;
 
 let updateWindow;
 
-/* Library Folder */
+/* LIBRARY FOLDER */
 
 const booksDir =
   path.join(
 
-    app.getPath("userData"),
+    app.getPath(
+      "userData"
+    ),
 
     "library"
 
@@ -104,14 +136,22 @@ function createMainWindow() {
 
         nodeIntegration: false,
 
-        webSecurity: false
+        sandbox: false,
+
+        webSecurity: false,
+
+        allowRunningInsecureContent: true
 
       }
 
     });
 
-  mainWindow.loadFile(
-    "app/index.html"
+  /* LOAD LOGIN */
+
+  mainWindow.loadURL(
+
+    "http://localhost:3000/login.html"
+
   );
 
 }
@@ -163,14 +203,18 @@ function createUpdateWindow() {
 
         contextIsolation: true,
 
-        nodeIntegration: false
+        nodeIntegration: false,
+
+        sandbox: false
 
       }
 
     });
 
-  updateWindow.loadFile(
-    "app/update.html"
+  updateWindow.loadURL(
+
+    "http://localhost:3000/update.html"
+
   );
 
   updateWindow.once(
@@ -181,6 +225,7 @@ function createUpdateWindow() {
 
     }
   );
+
 }
 
 /* SEND UPDATE MESSAGE */
@@ -204,7 +249,9 @@ function sendUpdateMessage(
       data
 
     );
+
   }
+
 }
 
 /* READY */
@@ -232,6 +279,7 @@ ipcMain.on(
       ) {
 
         createUpdateWindow();
+
       }
 
       sendUpdateMessage({
@@ -252,7 +300,9 @@ ipcMain.on(
       await autoUpdater
         .checkForUpdates();
 
-    } catch (err) {
+    }
+
+    catch (err) {
 
       console.error(err);
 
@@ -292,11 +342,6 @@ autoUpdater.on(
   "update-available",
   info => {
 
-    console.log(
-      "Update available:",
-      info.version
-    );
-
     sendUpdateMessage({
 
       type: "status",
@@ -318,7 +363,7 @@ autoUpdater.on(
       type: "status",
 
       text:
-        "You're using the latest version."
+        "You're using latest version."
 
     });
 
@@ -370,10 +415,7 @@ autoUpdater.on(
   "error",
   err => {
 
-    console.error(
-      "AUTO UPDATE ERROR:",
-      err
-    );
+    console.error(err);
 
     sendUpdateMessage({
 
@@ -384,13 +426,7 @@ autoUpdater.on(
 
           ? "Update failed."
 
-          : (
-
-              err.stack ||
-
-              err.toString()
-
-            )
+          : err.toString()
 
     });
 
@@ -480,13 +516,16 @@ ipcMain.handle(
           "library",
           library
         );
+
       }
 
       return {
         success: true
       };
 
-    } catch (err) {
+    }
+
+    catch (err) {
 
       console.error(err);
 
@@ -541,6 +580,7 @@ ipcMain.handle(
         );
 
       } catch {}
+
     }
 
     library =

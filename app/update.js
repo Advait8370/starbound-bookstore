@@ -1,26 +1,73 @@
+const ring =
+  document.getElementById(
+    "ring-progress"
+  );
+
+const circumference =
+  2 * Math.PI * 70;
+
+ring.style.strokeDasharray =
+  circumference;
+
+ring.style.strokeDashoffset =
+  circumference;
+
+/* Set Progress */
+
+function setProgress(percent) {
+
+  const offset =
+
+    circumference -
+
+    (percent / 100) *
+    circumference;
+
+  ring.style.strokeDashoffset =
+    offset;
+
+  document.getElementById(
+    "progress-fill"
+  ).style.width =
+
+    percent + "%";
+
+  document.getElementById(
+    "progress-text"
+  ).innerText =
+
+    Math.floor(percent)
+    + "%";
+
+}
+
+/* Messages */
+
 window.electronAPI.onMessage(
   data => {
+
+    /* Status */
 
     if (data.type === "status") {
 
       document.getElementById(
         "status"
-      ).innerText = data.text;
+      ).innerText =
+        data.text;
+
     }
+
+    /* Progress */
 
     if (data.type === "progress") {
 
-      document.getElementById(
-        "progress-fill"
-      ).style.width =
-        data.percent + "%";
+      setProgress(
+        data.percent
+      );
 
-      document.getElementById(
-        "progress-text"
-      ).innerText =
-        Math.floor(data.percent)
-        + "%";
     }
+
+    /* Changelog */
 
     if (data.type === "changelog") {
 
@@ -34,9 +81,12 @@ window.electronAPI.onMessage(
       data.items.forEach(item => {
 
         const li =
-          document.createElement("li");
+          document.createElement(
+            "li"
+          );
 
-        li.innerText = item;
+        li.innerText =
+          item;
 
         list.appendChild(li);
 

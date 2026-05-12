@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    Starbound Login
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+
+</head>
+
+<body class="login-body">
+
+  <!-- Background -->
+
+  <div class="login-orb orb-left"></div>
+
+  <div class="login-orb orb-right"></div>
+
+  <!-- Login Card -->
+
+  <div class="login-card">
+
+    <div class="login-logo">
+
+      ✦
+
+    </div>
+
+    <h1>
+      Starbound Reader
+    </h1>
+
+    <p>
+      Continue with Google
+    </p>
+
+    <button id="google-login-btn">
+
+      Continue with Google
+
+    </button>
+
+    <button id="guest-btn">
+
+      Continue as Guest
+
+    </button>
+
+  </div>
+
+<script type="module">
+
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup
+} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+
+const firebaseConfig = {
+
+  apiKey:
+    "AIzaSyAKj91wzdGYGI_kbluKbTXwtd3BZIaIXoE",
+
+  authDomain:
+    "starbound-bookstore.firebaseapp.com",
+
+  projectId:
+    "starbound-bookstore",
+
+  storageBucket:
+    "starbound-bookstore.firebasestorage.app",
+
+  messagingSenderId:
+    "111167679304",
+
+  appId:
+    "1:111167679304:web:fb7d3bda97c32272b7e17d"
+
+};
+
+const app =
+  initializeApp(
+    firebaseConfig
+  );
+
+const auth =
+  getAuth(app);
+
+const provider =
+  new GoogleAuthProvider();
+
+const googleBtn =
+  document.getElementById(
+    "google-login-btn"
+  );
+
+const guestBtn =
+  document.getElementById(
+    "guest-btn"
+  );
+
+googleBtn.onclick = async () => {
+
+  googleBtn.innerText =
+    "Signing in...";
+
+  try {
+
+    const result =
+
+      await signInWithPopup(
+        auth,
+        provider
+      );
+
+    const user =
+      result.user;
+
+    localStorage.setItem(
+      "loggedIn",
+      "true"
+    );
+
+    localStorage.setItem(
+      "username",
+      user.displayName || "User"
+    );
+
+    localStorage.setItem(
+      "userPhoto",
+      user.photoURL || ""
+    );
+
+    window.location.href =
+      "index.html";
+
+  }
+
+  catch (err) {
+
+    console.error(err);
+
+    alert(
+      err.message
+    );
+
+    googleBtn.innerText =
+      "Continue with Google";
+
+  }
+
+};
+
+guestBtn.onclick = () => {
+
+  localStorage.setItem(
+    "guestMode",
+    "true"
+  );
+
+  window.location.href =
+    "index.html";
+
+};
+
+</script>
+
+</body>
+
+</html>

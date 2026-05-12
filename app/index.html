@@ -27,7 +27,9 @@
 
     <div class="header-top">
 
-      <h1>STARBOUND BOOKSTORE</h1>
+      <h1>
+        STARBOUND BOOKSTORE
+      </h1>
 
       <div class="header-actions">
 
@@ -91,35 +93,35 @@
   <!-- LIBRARY -->
 
   <div
-  id="library-page"
-  class="page"
->
+    id="library-page"
+    class="page"
+  >
 
-  <div id="library-header">
+    <div id="library-header">
 
-    <div>
+      <div>
 
-      <h2>
-        Offline Library
-      </h2>
+        <h2>
+          Offline Library
+        </h2>
 
-      <p>
-        Your downloaded books
-      </p>
+        <p>
+          Your downloaded books
+        </p>
+
+      </div>
+
+      <div id="library-stats">
+
+        0 Books
+
+      </div>
 
     </div>
 
-    <div id="library-stats">
-
-      0 Books
-
-    </div>
+    <div id="library-grid"></div>
 
   </div>
-
-  <div id="library-grid"></div>
-
-</div>
 
   <!-- SETTINGS -->
 
@@ -127,11 +129,17 @@
 
     <div id="settings-content">
 
-      <h2>Settings</h2>
+      <h2>
+        Settings
+      </h2>
+
+      <!-- Theme -->
 
       <div class="setting-item">
 
-        <span>Theme</span>
+        <span>
+          Theme
+        </span>
 
         <button id="theme-toggle">
 
@@ -141,9 +149,13 @@
 
       </div>
 
+      <!-- Updates -->
+
       <div class="setting-item">
 
-        <span>Application Updates</span>
+        <span>
+          Application Updates
+        </span>
 
         <button id="settings-update-btn">
 
@@ -153,9 +165,13 @@
 
       </div>
 
+      <!-- Fullscreen -->
+
       <div class="setting-item">
 
-        <span>Auto Fullscreen Reader</span>
+        <span>
+          Auto Fullscreen Reader
+        </span>
 
         <input
           type="checkbox"
@@ -164,9 +180,13 @@
 
       </div>
 
+      <!-- Zoom -->
+
       <div class="setting-item">
 
-        <span>Default Reader Zoom</span>
+        <span>
+          Default Reader Zoom
+        </span>
 
         <select id="zoom-setting">
 
@@ -186,13 +206,57 @@
 
       </div>
 
-      <div id="about-app">
+      <!-- Analytics -->
 
-        <h3>Starbound Reader</h3>
+      <div class="setting-item analytics-box">
 
-        <p>Version 1.3.5</p>
+        <div>
+
+          <h3>
+            Analytics
+          </h3>
+
+          <p id="analytics-text">
+
+            Loading...
+
+          </p>
+
+        </div>
 
       </div>
+
+      <!-- Account -->
+
+      <div class="setting-item">
+
+        <span>
+          Account
+        </span>
+
+        <button id="logout-btn">
+
+          Logout
+
+        </button>
+
+      </div>
+
+      <!-- About -->
+
+      <div id="about-app">
+
+        <h3>
+          Starbound Reader
+        </h3>
+
+        <p>
+          Version 1.4.0
+        </p>
+
+      </div>
+
+      <!-- Close -->
 
       <button id="close-settings">
 
