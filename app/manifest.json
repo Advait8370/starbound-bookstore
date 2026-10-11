@@ -1,0 +1,25 @@
+{
+  "name": "Starbound Stories Bookstore",
+  "short_name": "Starbound",
+  "version": "1.0.0",
+  "start_url": "index.html",
+  "id": "/starbound-stories/",
+  "display": "standalone",
+  "background_color": "#060713",
+  "theme_color": "#4a00e0",
+  "description": "Short fiction, novels, and cosmic adventures among the stars.",
+  "icons": [
+    {
+      "src": "images/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "images/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

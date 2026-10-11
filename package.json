@@ -1,6 +1,6 @@
 {
   "name": "starbound-bookstore",
-  "version": "1.4.0",
+  "version": "1.0.0",
   "description": "Starbound Stories Bookstore and Reader",
   "main": "main.js",
   "author": "Advait S",
@@ -67,7 +67,6 @@
     "electron-updater": "^6.8.3",
     "epubjs": "^0.4.2",
     "express": "^5.2.1",
-    "firebase": "^12.13.0",
     "fs-extra": "^11.3.5",
     "uuid": "^14.0.0"
   },

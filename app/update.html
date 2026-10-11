@@ -1,147 +1,75 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-
   <meta charset="UTF-8">
-
   <title>Starbound Updater</title>
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
-  <link
-    rel="stylesheet"
-    href="update.css"
-  >
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="update.css">
 </head>
 
 <body>
 
   <!-- Background Orbs -->
-
   <div class="orb orb1"></div>
   <div class="orb orb2"></div>
 
   <!-- Card -->
-
   <div id="update-card">
 
     <!-- Logo -->
-
-    <div id="logo">
-
-      ✦
-
-    </div>
+    <div id="logo">✦</div>
 
     <!-- Title -->
-
-    <h1>
-      Starbound Reader
-    </h1>
-
-    <p id="subtitle">
-
-      Updating your universe...
-
-    </p>
+    <h1>Starbound Reader</h1>
+    <p id="subtitle">Checking for cosmic updates...</p>
 
     <!-- Status -->
-
     <div id="status-box">
-
-      <div id="status-icon">
-
-        ⟳
-
-      </div>
-
-      <div id="status">
-
-        Checking for updates...
-
-      </div>
-
+      <div id="status-icon">⟳</div>
+      <div id="status">Connecting to GitHub...</div>
     </div>
 
     <!-- Progress Ring -->
-
     <div id="progress-wrapper">
-
       <svg id="progress-ring">
-
-        <circle
-          id="ring-bg"
-          cx="90"
-          cy="90"
-          r="70"
-        />
-
-        <circle
-          id="ring-progress"
-          cx="90"
-          cy="90"
-          r="70"
-        />
-
+        <circle id="ring-bg" cx="90" cy="90" r="70" />
+        <circle id="ring-progress" cx="90" cy="90" r="70" />
       </svg>
-
       <div id="progress-center">
-
-        <span id="progress-text">
-
-          0%
-
-        </span>
-
+        <span id="progress-text">0%</span>
       </div>
-
     </div>
 
     <!-- Bar -->
-
     <div id="progress-bar">
-
       <div id="progress-fill"></div>
-
     </div>
 
     <!-- Changelog -->
-
     <div id="changelog">
-
       <div class="changelog-header">
-
-        <span>
-          What's New
-        </span>
-
-        <span class="version-badge">
-
-          v1.3.0
-
-        </span>
-
+        <span>What's New</span>
+        <span class="version-badge" id="version-badge">v1.0.0</span>
       </div>
-
       <ul id="changes-list">
-
-        <li>
-          Initializing updater...
-        </li>
-
+        <li>Checking Advait8370/starbound-bookstore releases...</li>
       </ul>
+    </div>
 
+    <!-- Actions -->
+    <div id="update-actions" style="margin-top: 25px; display: flex; justify-content: center; gap: 12px;">
+      <a id="download-update-btn" href="#" target="_blank" rel="noopener noreferrer" style="display: none;">
+        Download Update
+      </a>
+      <button id="back-btn" onclick="window.location.href='index.html'">
+        Back to Library
+      </button>
     </div>
 
   </div>
 
   <script src="update.js"></script>
-
 </body>
 
 </html>

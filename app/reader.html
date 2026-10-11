@@ -1,68 +1,41 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Starbound Reader</title>
+  <link rel="stylesheet" href="reader.css">
 
-  <link
-    rel="stylesheet"
-    href="reader.css"
-  >
-
+  <!-- PDF.js library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-
 </head>
 
 <body>
 
-  <div id="pdf-container">
-
-    <canvas id="pdf-render"></canvas>
-
+  <!-- Loading Indicator -->
+  <div id="reader-loader">
+    <div class="loader-spinner"></div>
+    <p>Opening book among the stars...</p>
   </div>
 
+  <!-- PDF Viewport -->
+  <div id="pdf-container">
+    <canvas id="pdf-render"></canvas>
+  </div>
+
+  <!-- Reader Floating Toolbar -->
   <div id="reader-controls">
-
-    <button id="prev-page">
-      ←
-    </button>
-
-    <span id="page-info">
-      1 / 1
-    </span>
-
-    <button id="next-page">
-      →
-    </button>
-
-    <button id="zoom-out">
-      −
-    </button>
-
-    <button id="zoom-in">
-      +
-    </button>
-
-    <button id="fullscreen-btn">
-      ⛶
-    </button>
-
-    <button id="home-btn">
-      ✕
-    </button>
-
+    <button id="home-btn" title="Back to Library (Esc)">✕</button>
+    <button id="prev-page" title="Previous Page (←)">←</button>
+    <span id="page-info">1 / 1</span>
+    <button id="next-page" title="Next Page (→)">→</button>
+    <button id="zoom-out" title="Zoom Out (−)">−</button>
+    <button id="zoom-in" title="Zoom In (+)">+</button>
+    <button id="fullscreen-btn" title="Toggle Fullscreen">⛶</button>
   </div>
 
   <script src="reader.js"></script>
-
 </body>
 
 </html>
