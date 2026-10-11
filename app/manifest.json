@@ -2,24 +2,47 @@
   "name": "Starbound Stories Bookstore",
   "short_name": "Starbound",
   "version": "1.0.0",
-  "start_url": "index.html",
-  "id": "/starbound-stories/",
+  "start_url": "https://starbound-stories-bookstore.vercel.app/",
+  "id": "https://starbound-stories-bookstore.vercel.app/",
   "display": "standalone",
+  "orientation": "any",
   "background_color": "#060713",
   "theme_color": "#4a00e0",
   "description": "Short fiction, novels, and cosmic adventures among the stars.",
   "icons": [
     {
-      "src": "images/favicon.png",
+      "src": "https://starbound-stories-bookstore.vercel.app/images/favicon.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "images/logo.png",
+      "src": "https://starbound-stories-bookstore.vercel.app/images/logo.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "https://starbound-stories-bookstore.vercel.app/images/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "https://starbound-stories-bookstore.vercel.app/images/Beyondthehorizonofspace.jpg",
+      "sizes": "1280x720",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "Starbound Bookstore Catalog"
+    },
+    {
+      "src": "https://starbound-stories-bookstore.vercel.app/images/Beyondthehorizonofspace.jpg",
+      "sizes": "720x1280",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Mobile Reader"
     }
   ]
 }
